@@ -421,6 +421,7 @@ const resetUserPassword = async (token, password) => {
     throw new Error(error.message);
   }
 };
+
 module.exports = {
   saveUser,
   verifyAccountDetail,
