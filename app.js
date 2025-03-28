@@ -5,6 +5,7 @@ const sequelize = require("./src/config/dbConnect");
 const Roles = require("./src/models/role");
 const Users = require("./src/models/user");
 const indexRouter = require("./src/routes");
+const AuctionCategory = require("./src/models/auctionCategory");
 const app = express();
 
 app.use(express.json());
@@ -21,6 +22,7 @@ app.listen(PORT, async () => {
     console.log("Db Connection has been established successfully.");
     await Roles.sync({force:false});
     await Users.sync({force:false});
+    await AuctionCategory.sync({force:false});
   } catch (error) {
     console.log("Error", error.message);
   }
