@@ -7,6 +7,6 @@ const auctionCategorySchema = require("../middlewares/validationSchema/auctionca
 const auctionCategoryRouter = express.Router();
 
 auctionCategoryRouter.post('/create', validateSchema(auctionCategorySchema), auctionCategoryController.createAuctionCategory);
-auctionCategoryRouter.get('/', auctionCategoryController.allAuctionCategory);
+auctionCategoryRouter.get('/', authenticateToken, auctionCategoryController.allAuctionCategory);
 
 module.exports = auctionCategoryRouter;
