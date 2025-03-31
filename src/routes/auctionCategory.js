@@ -2,7 +2,7 @@ const express = require("express");
 const auctionCategoryController = require('../controllers/auctionCategory/index');
 const validateSchema = require("../middlewares/validator");
 const authenticateToken = require("../middlewares/authMiddleware");
-const auctionCategorySchema = require("../middlewares/validationSchema/auctioncategory");
+const auctionCategorySchema = require("../middlewares/validationSchema/auctionCategory");
 
 const auctionCategoryRouter = express.Router();
 
