@@ -7,5 +7,4 @@ const registerSchema = Joi.object({
   password: Joi.string().min(6).required(),
   role_id: Joi.string().required().valid("1", "2", "3"),
 });
-
 module.exports = registerSchema;

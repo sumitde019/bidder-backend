@@ -8,7 +8,7 @@ const saveAuctionCategory = async (auctionDetails, userId) => {
     const isAuctionCategoryPresent = await AuctionCategory.findOne({
       where: {
         name: name,
-      }, 
+      },
     });
 
     if (isAuctionCategoryPresent) {

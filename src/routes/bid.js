@@ -1,5 +1,5 @@
 const express = require("express");
-const bidController = require('../controllers/bid/index');
+const bidController = require('../controoler/bid/index');
 const validateSchema = require("../middlewares/validator");
 const authenticateToken = require("../middlewares/authMiddleware");
 const createBidSchema = require("../middlewares/validationSchema/createBidSchema");

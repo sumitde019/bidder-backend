@@ -1,5 +1,5 @@
 const express = require("express");
-const auctionController = require('../controllers/auction/index');
+const auctionController = require('../controoler/auction/index');
 const validateSchema = require("../middlewares/validator");
 
 const authenticateToken = require("../middlewares/authMiddleware");
