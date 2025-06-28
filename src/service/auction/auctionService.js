@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
 const Auction = require("../../models/auction");
-const { ERROR_MESSAGE } = require("../../utils/propertyResolver");
+const { ERROR_MESSAGE, ROLE_ID } = require("../../utils/propertyResolver");
 const Users = require("../../models/user");
 const AuctionCategory = require("../../models/auctionCategory");
 
@@ -169,18 +169,53 @@ const getMyAuctions = async (filters) => {
       limit = 10,
       minPrice,
       maxPrice,
-      sortBy = "asc",
+      sortBy = "desc",
       categoryId,
-      status = "active",
+      status,
+      startDate,
+      endDate,
+      search,
       userId,
     } = filters;
     const offset = (page - 1) * limit;
 
     // Build dynamic filter options
     const whereClause = {
-      status: status,
       created_by: userId,
     };
+
+    // Filter by multiple status
+    if (Array.isArray(status) && status.length > 0) {
+      whereClause.status = { [Op.in]: status };
+    }
+
+    // Filter by multiple categories
+    if (Array.isArray(categoryId) && categoryId.length > 0) {
+      whereClause.category_id = { [Op.in]: categoryId.map(Number) };
+    }
+
+    // Filter by the item search
+    if (search) {
+      whereClause.item_name = { [Op.like]: `%${search}%` };
+    }
+
+    // Filter by start date or end date
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      whereClause.start_date = { [Op.gte]: start };
+      whereClause.end_date = { [Op.lte]: end };
+    } else if (startDate && !endDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      whereClause.start_date = { [Op.gte]: start };
+    } else if (endDate && !startDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      whereClause.end_date = { [Op.lte]: end };
+    }
 
     if (minPrice) {
       whereClause.base_price = {
@@ -194,10 +229,7 @@ const getMyAuctions = async (filters) => {
         [Op.lte]: parseFloat(maxPrice),
       };
     }
-
-    if (categoryId) {
-      whereClause.category_id = categoryId;
-    }
+    console.log("@@@@@@ ", whereClause);
 
     const { rows: auctions, count: total } = await Auction.findAndCountAll({
       where: whereClause,
@@ -237,10 +269,40 @@ const getMyAuctions = async (filters) => {
     throw new Error(error.message);
   }
 };
+
+const deleteAuction = async (auctionId, userId, role_id) => {
+  try {
+    const whereClause = {
+      id: auctionId,
+    };
+    if (![ROLE_ID.SUPER_ADMIN, ROLE_ID.ADMIN].includes(role_id)) {
+      whereClause.created_by = userId;
+    }
+
+    // Find the auction by Id and ensure the user is the creator
+    const auction = await Auction.findOne({
+      where: whereClause,
+    });
+
+    // Auction not found
+    if (!auction) {
+      throw new Error(ERROR_MESSAGE.AUCTION_NOT_FOUND);
+    }
+
+    // Soft delete by setting deleted_by
+    auction.deleted_by = userId;
+    await auction.save();
+    await auction.destroy(); // soft delete
+    return auction;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
 module.exports = {
   createAuction,
   updateAuction,
   getActiveAuctions,
   getAuctionById,
   getMyAuctions,
+  deleteAuction,
 };

@@ -108,8 +108,18 @@ const getAuctionDetailById = async (req, res) => {
 const getMyAuctions = async (req, res) => {
   try {
     const { id: userId } = req.user;
-    const { page, limit, minPrice, maxPrice, sortBy, categoryId, status } =
-      req.query;
+    const {
+      page,
+      limit,
+      minPrice,
+      maxPrice,
+      sortBy,
+      categoryId,
+      status,
+      startDate,
+      endDate,
+      search,
+    } = req.body;
     const auctions = await auctionService.getMyAuctions({
       page: parseInt(page, 10) || 1,
       limit: parseInt(limit, 10) || 10,
@@ -118,6 +128,9 @@ const getMyAuctions = async (req, res) => {
       sortBy,
       categoryId,
       status,
+      startDate,
+      endDate,
+      search,
       userId,
     });
     sendSuccessResponse(
@@ -135,10 +148,32 @@ const getMyAuctions = async (req, res) => {
   }
 };
 
+const deleteAuction = async (req, res) => {
+  try {
+    const { id: userId, role_id } = req.user;
+    const auctionId = req.params.id;
+
+    if (!auctionId) {
+      throw new Error(ERROR_MESSAGE.AUCTION_ID_REQUIRED);
+    }
+
+    const result = await auctionService.deleteAuction(auctionId, userId, role_id);
+
+    sendSuccessResponse(res, SUCCESS_MESSAGE.AUCTION_DELETED, result, 200);
+  } catch (err) {
+    sendErrorResponse(
+      res,
+      err.message || ERROR_MESSAGE.SOMETHING_WENT_WRONG,
+      500
+    );
+  }
+};
+
 module.exports = {
   createAuction,
   updateAuction,
   getActiveAuctions,
   getAuctionDetailById,
   getMyAuctions,
+  deleteAuction,
 };

@@ -38,4 +38,4 @@ const generatePreSignedUrl = async (req, res) => {
 
 module.exports = { generatePreSignedUrl };
 
-// /aws/get-presigned-url?fileName="myphoto.jpg"&
+// /aws/get-presigned-url?fileName="myphoto.jpg"& 
